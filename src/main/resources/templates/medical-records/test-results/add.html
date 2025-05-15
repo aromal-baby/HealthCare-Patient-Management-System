@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head"></head>
+<body>
+<header th:replace="fragments/header :: header"></header>
+
+<div class="container mt-4">
+    <div class="page-header mb-4">
+        <h2><i class="bi bi-clipboard2-plus"></i> Add Test Result</h2>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form th:action="@{/medical-records/test-results/add}" th:object="${testResult}" method="post" class="needs-validation" novalidate>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="patientId" class="form-label">Patient *</label>
+                        <select class="form-select" id="patientId" name="patientId" required th:disabled="${selectedPatientId != null}">
+                            <option value="">Select Patient</option>
+                            <option th:each="patient : ${patients}"
+                                    th:value="${patient.patientId}"
+                                    th:text="${patient.firstName + ' ' + patient.lastName}"
+                                    th:selected="${patient.patientId == selectedPatientId}">
+                            </option>
+                        </select>
+                        <!-- Hidden field to ensure the value is submitted if select is disabled -->
+                        <input type="hidden" name="patientId" th:value="${selectedPatientId}" th:if="${selectedPatientId != null}">
+                        <div class="invalid-feedback">
+                            Please select a patient
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="staffId" class="form-label">Ordered By *</label>
+                        <select class="form-select" id="staffId" name="staffId" required>
+                            <option value="">Select Provider</option>
+                            <option th:each="provider : ${staff}"
+                                    th:value="${provider.staffId}"
+                                    th:text="${provider.firstName + ' ' + provider.lastName + ' (' + provider.role + ')'}">
+                            </option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Please select a healthcare provider
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="testType" class="form-label">Test Type *</label>
+                        <select class="form-select" id="testType" th:field="*{testType}" required>
+                            <option value="">Select Test Type</option>
+                            <option value="Blood Panel">Blood Panel</option>
+                            <option value="Urinalysis">Urinalysis</option>
+                            <option value="COVID-19 Test">COVID-19 Test</option>
+                            <option value="Cholesterol Test">Cholesterol Test</option>
+                            <option value="X-Ray">X-Ray</option>
+                            <option value="MRI Scan">MRI Scan</option>
+                            <option value="CT Scan">CT Scan</option>
+                            <option value="Ultrasound">Ultrasound</option>
+                            <option value="EKG">EKG</option>
+                            <option value="Biopsy">Biopsy</option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Please select a test type
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="datePerformed" class="form-label">Date Performed *</label>
+                        <input type="datetime-local" class="form-control" id="datePerformed" th:field="*{datePerformed}" required>
+                        <div class="invalid-feedback">
+                            Please select the date and time
+                        </div>
+                    </div>
+                </div>
+
+                <h5 class="mt-4 mb-3">Test Results</h5>
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> Test result fields will vary based on test type.
+                    Add key-value pairs as needed for specific test results.
+                </div>
+
+                <div id="resultsContainer">
+                    <div class="row mb-2 result-row">
+                        <div class="col-md-5">
+                            <input type="text" class="form-control" placeholder="Metric Name (e.g., WBC)" name="resultKeys[]">
+                        </div>
+                        <div class="col-md-5">
+                            <input type="text" class="form-control" placeholder="Value (e.g., 7.5)" name="resultValues[]">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-danger remove-result">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <button type="button" class="btn btn-secondary" id="addResultBtn">
+                        <i class="bi bi-plus-circle"></i> Add Result Metric
+                    </button>
+                </div>
+
+                <div class="mb-3">
+                    <label for="interpretation" class="form-label">Interpretation</label>
+                    <textarea class="form-control" id="interpretation" th:field="*{interpretation}" rows="3"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Abnormal Flags (if any)</label>
+                    <div class="input-group mb-2">
+                        <input type="text" class="form-control" id="abnormalFlag" placeholder="Enter abnormal finding">
+                        <button class="btn btn-outline-secondary" type="button" id="addFlagBtn">Add</button>
+                    </div>
+                    <div id="abnormalFlagsContainer" class="d-flex flex-wrap gap-2 mt-2">
+                        <!-- Flags will be added here dynamically -->
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a th:href="@{/medical-records/test-results}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Save Test Results
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments/header :: footer"></footer>
+
+<script>
+    // Dynamic form handling for test results
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add result row
+        document.getElementById('addResultBtn').addEventListener('click', function() {
+            const container = document.getElementById('resultsContainer');
+            const newRow = document.createElement('div');
+            newRow.className = 'row mb-2 result-row';
+            newRow.innerHTML = `
+                    <div class="col-md-5">
+                        <input type="text" class="form-control" placeholder="Metric Name (e.g., WBC)" name="resultKeys[]">
+                    </div>
+                    <div class="col-md-5">
+                        <input type="text" class="form-control" placeholder="Value (e.g., 7.5)" name="resultValues[]">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-danger remove-result">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                `;
+            container.appendChild(newRow);
+
+            // Add event listener to the new remove button
+            newRow.querySelector('.remove-result').addEventListener('click', function() {
+                container.removeChild(newRow);
+            });
+        });
+
+        // Remove result row
+        document.querySelectorAll('.remove-result').forEach(button => {
+            button.addEventListener('click', function() {
+                const row = this.closest('.result-row');
+                row.parentNode.removeChild(row);
+            });
+        });
+
+        // Abnormal flags handling
+        let flagCounter = 0;
+        document.getElementById('addFlagBtn').addEventListener('click', function() {
+            const flagInput = document.getElementById('abnormalFlag');
+            const flagText = flagInput.value.trim();
+
+            if (flagText) {
+                const container = document.getElementById('abnormalFlagsContainer');
+                const flagElement = document.createElement('div');
+                flagElement.className = 'badge bg-danger me-1 mb-1 p-2 d-flex align-items-center';
+                flagElement.innerHTML = `
+                        <span>${flagText}</span>
+                        <input type="hidden" name="abnormalFlags[${flagCounter}]" value="${flagText}">
+                        <button type="button" class="btn-close btn-close-white ms-2" aria-label="Remove"></button>
+                    `;
+                container.appendChild(flagElement);
+
+                // Add event listener to remove button
+                flagElement.querySelector('.btn-close').addEventListener('click', function() {
+                    container.removeChild(flagElement);
+                });
+
+                flagCounter++;
+                flagInput.value = '';
+            }
+        });
+
+        // Form validation
+        const form = document.querySelector('.needs-validation');
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            } else {
+                // Process the result fields into the right format
+                const keys = Array.from(document.querySelectorAll('input[name="resultKeys[]"]')).map(input => input.value);
+                const values = Array.from(document.querySelectorAll('input[name="resultValues[]"]')).map(input => input.value);
+
+                // Create hidden fields for each result pair
+                for (let i = 0; i < keys.length; i++) {
+                    if (keys[i] && values[i]) {
+                        const hiddenInput = document.createElement('input');
+                        hiddenInput.type = 'hidden';
+                        hiddenInput.name = `results['${keys[i]}']`;
+                        hiddenInput.value = values[i];
+                        form.appendChild(hiddenInput);
+                    }
+                }
+            }
+
+            form.classList.add('was-validated');
+        });
+    });
+</script>
+</body>
+</html>

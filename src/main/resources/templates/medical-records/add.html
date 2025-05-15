@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head"></head>
+<body>
+<header th:replace="fragments/header :: header"></header>
+
+<div class="container mt-4">
+    <div class="page-header mb-4">
+        <h2><i class="bi bi-file-earmark-plus"></i> Add Medical Record</h2>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form th:action="@{/medical-records/add}" th:object="${medicalRecord}" method="post" class="needs-validation" novalidate>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="patientId" class="form-label">Patient *</label>
+                        <select class="form-select" id="patientId" name="patientId" required th:disabled="${selectedPatientId != null}">
+                            <option value="">Select Patient</option>
+                            <option th:each="patient : ${patients}"
+                                    th:value="${patient.patientId}"
+                                    th:text="${patient.firstName + ' ' + patient.lastName}"
+                                    th:selected="${patient.patientId == selectedPatientId}">
+                            </option>
+                        </select>
+                        <!-- Hidden field to ensure the value is submitted if select is disabled -->
+                        <input type="hidden" name="patientId" th:value="${selectedPatientId}" th:if="${selectedPatientId != null}">
+                        <div class="invalid-feedback">
+                            Please select a patient
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="staffId" class="form-label">Provider *</label>
+                        <select class="form-select" id="staffId" name="staffId" required>
+                            <option value="">Select Provider</option>
+                            <option th:each="provider : ${staff}"
+                                    th:value="${provider.staffId}"
+                                    th:text="${provider.firstName + ' ' + provider.lastName + ' (' + provider.role + ')'}">
+                            </option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Please select a healthcare provider
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="recordType" class="form-label">Record Type *</label>
+                        <select class="form-select" id="recordType" th:field="*{recordType}" required>
+                            <option value="">Select Type</option>
+                            <option value="Initial Assessment">Initial Assessment</option>
+                            <option value="Follow-up Visit">Follow-up Visit</option>
+                            <option value="Emergency Visit">Emergency Visit</option>
+                            <option value="Routine Checkup">Routine Checkup</option>
+                            <option value="Specialist Consultation">Specialist Consultation</option>
+                            <option value="Surgical Procedure">Surgical Procedure</option>
+                            <option value="Vaccination">Vaccination</option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Please select a record type
+                        </div>
+                    </div>
+                </div>
+
+                <h5 class="mt-4 mb-3">Vital Signs</h5>
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label for="temperature" class="form-label">Temperature (°F)</label>
+                        <input type="number" class="form-control" id="temperature" name="vitalSigns['temperature']" step="0.1">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="bloodPressure" class="form-label">Blood Pressure</label>
+                        <input type="text" class="form-control" id="bloodPressure" name="vitalSigns['blood_pressure']" placeholder="120/80">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="heartRate" class="form-label">Heart Rate (bpm)</label>
+                        <input type="number" class="form-control" id="heartRate" name="vitalSigns['heart_rate']">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="respiratoryRate" class="form-label">Respiratory Rate</label>
+                        <input type="number" class="form-control" id="respiratoryRate" name="vitalSigns['respiratory_rate']">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="symptoms" class="form-label">Symptoms (comma separated)</label>
+                    <input type="text" class="form-control" id="symptoms" name="symptoms" placeholder="Headache, Fever, Fatigue">
+                </div>
+
+                <div class="mb-3">
+                    <label for="diagnosis" class="form-label">Diagnosis</label>
+                    <input type="text" class="form-control" id="diagnosis" th:field="*{diagnosis}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="notes" class="form-label">Notes</label>
+                    <textarea class="form-control" id="notes" th:field="*{notes}" rows="4"></textarea>
+                </div>
+
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="followUpRequired" th:field="*{followUpRequired}">
+                    <label class="form-check-label" for="followUpRequired">Follow-up Required</label>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a th:href="@{/medical-records}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Save Record
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments/header :: footer"></footer>
+
+<script>
+    // Form validation script
+    (function () {
+        'use strict'
+
+        // Fetch all forms we want to apply validation to
+        var forms = document.querySelectorAll('.needs-validation')
+
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
+</body>
+</html>

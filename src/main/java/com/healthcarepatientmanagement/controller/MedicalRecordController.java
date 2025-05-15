@@ -304,22 +304,20 @@ public class MedicalRecordController {
     // Search functionality
     @GetMapping("/search")
     public String searchRecords(@RequestParam String query, Model model) {
-
         List<MedicalRecord> searchResults = medicalRecordService.searchMedicalRecords(query);
-        model.addAttribute("searchResults", searchResults);
+        model.addAttribute("records", searchResults);
         model.addAttribute("searchQuery", query);
 
-        // Add patient names for display
+        // Adding patient names for display
         Map<Long, String> patientNames = new HashMap<>();
         for (MedicalRecord record : searchResults) {
             patientService.getPatientById(record.getPatientId()).ifPresent(patient -> {
                 patientNames.put(record.getPatientId(),
                         patient.getFirstName() + " " + patient.getLastName());
             });
-
-            model.addAttribute("patientNames", patientNames);
-
-            return "medical-records/search-results";
         }
+        model.addAttribute("patientNames", patientNames);
+
+        return "medical-records/search-results";
     }
 }

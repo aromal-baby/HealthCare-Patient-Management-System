@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head"></head>
+<body>
+<header th:replace="fragments/header :: header"></header>
+
+<div class="container mt-4">
+    <div class="jumbotron bg-light p-4 rounded mb-4">
+        <h1 class="display-4">Healthcare Patient Management System</h1>
+        <p class="lead">
+            A comprehensive healthcare database system leveraging both SQL and NoSQL technologies to efficiently manage patient data and medical records.
+        </p>
+        <hr class="my-4">
+        <p>
+            This hybrid system demonstrates the strengths of relational databases for structured data and document databases for flexible medical information.
+        </p>
+        <div class="d-flex gap-2 mt-4">
+            <a class="btn btn-primary btn-lg" th:href="@{/patients}" role="button">
+                <i class="bi bi-people"></i> Manage Patients
+            </a>
+            <a class="btn btn-success btn-lg" th:href="@{/appointments/add}" role="button">
+                <i class="bi bi-calendar-plus"></i> Schedule Appointment
+            </a>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <i class="bi bi-people text-primary" style="font-size: 3rem;"></i>
+                    <h5 class="card-title mt-3">Patient Management</h5>
+                    <p class="card-text">Register and manage patient data with MySQL database.</p>
+                    <a th:href="@{/patients}" class="btn btn-outline-primary">View Patients</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <i class="bi bi-calendar-check text-success" style="font-size: 3rem;"></i>
+                    <h5 class="card-title mt-3">Appointments</h5>
+                    <p class="card-text">Schedule and track appointments with ACID compliance.</p>
+                    <a th:href="@{/appointments}" class="btn btn-outline-success">View Appointments</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <i class="bi bi-file-medical text-info" style="font-size: 3rem;"></i>
+                    <h5 class="card-title mt-3">Medical Records</h5>
+                    <p class="card-text">Store and retrieve flexible medical data with MongoDB.</p>
+                    <a th:href="@{/medical-records}" class="btn btn-outline-info">View Records</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <i class="bi bi-clipboard2-pulse text-danger" style="font-size: 3rem;"></i>
+                    <h5 class="card-title mt-3">Test Results</h5>
+                    <p class="card-text">Manage variable test results with document flexibility.</p>
+                    <a th:href="@{/medical-records/test-results}" class="btn btn-outline-danger">View Tests</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Hybrid Database Architecture</h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-3 text-muted">MySQL for Structured Data</h6>
+                    <ul class="list-group mb-4">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Patient Demographics
+                            <span class="badge bg-primary rounded-pill">ACID Compliance</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Medical Staff Records
+                            <span class="badge bg-primary rounded-pill">Relational</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Appointments
+                            <span class="badge bg-primary rounded-pill">Transactional</span>
+                        </li>
+                    </ul>
+
+                    <h6 class="card-subtitle mb-3 text-muted">MongoDB for Semi-structured Data</h6>
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Medical Records
+                            <span class="badge bg-success rounded-pill">Flexible Schema</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Test Results
+                            <span class="badge bg-success rounded-pill">Document-Oriented</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Patient History
+                            <span class="badge bg-success rounded-pill">Nested Documents</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Project Features</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6>Database Integration</h6>
+                        <p>Seamless integration between MySQL and MongoDB databases, demonstrating optimal use cases for each technology.</p>
+                    </div>
+                    <div class="mb-3">
+                        <h6>Data Modeling</h6>
+                        <p>Entity relationship modeling with proper normalization for SQL data and document design with embedding and referencing strategies for MongoDB.</p>
+                    </div>
+                    <div class="mb-3">
+                        <h6>Service-Oriented Architecture</h6>
+                        <p>Clear separation of concerns with repository pattern implementation for data access.</p>
+                    </div>
+                    <div>
+                        <h6>User Interface</h6>
+                        <p>Modern, responsive UI built with Thymeleaf templates and Bootstrap for efficient healthcare data management.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">About This Project</h5>
+        </div>
+        <div class="card-body">
+            <p>
+                This Healthcare Patient Management System was developed as part of the M605 Advanced Databases course
+                at Gisma University of Applied Sciences. It demonstrates database design principles,
+                hybrid database architecture, and software engineering best practices.
+            </p>
+            <p>
+                The system implements a comprehensive healthcare database using both MySQL for structured data
+                (patient information, appointments, staff) and MongoDB for semi-structured/unstructured data
+                (medical records, test results, patient history). This hybrid approach showcases the strengths
+                of each database paradigm and provides an optimal solution for healthcare data management.
+            </p>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments/header :: footer"></footer>
+</body>
+</html>

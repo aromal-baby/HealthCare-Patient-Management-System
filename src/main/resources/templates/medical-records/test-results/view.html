@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head"></head>
+<body>
+<header th:replace="fragments/header :: header"></header>
+
+<div class="container mt-4">
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-clipboard2-data"></i> Test Result Details</h2>
+        <div>
+            <a th:href="@{/patients/{id}(id=${patient.patientId})}" class="btn btn-outline-secondary">
+                <i class="bi bi-person"></i> Patient Profile
+            </a>
+            <a th:href="@{/medical-records/test-results}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="bi bi-clipboard2-check"></i>
+                <span th:text="${testResult.testType}"></span> Results #<span th:text="${testResult.testId}"></span>
+            </h5>
+            <span class="badge bg-light text-dark"
+                  th:text="${#temporals.format(testResult.datePerformed, 'MMM dd, yyyy h:mm a')}">
+                </span>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h6 class="mb-0">Patient Information</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-2">
+                                <strong>Name:</strong>
+                                <a th:href="@{/patients/{id}(id=${patient.patientId})}"
+                                   th:text="${patient.firstName + ' ' + patient.lastName}">
+                                </a>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Patient ID:</strong> <span th:text="${patient.patientId}"></span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Date of Birth:</strong>
+                                <span th:text="${#temporals.format(patient.dateOfBirth, 'MMM dd, yyyy')}"></span>
+                            </div>
+                            <div class="mb-2" th:if="${patient.gender != null}">
+                                <strong>Gender:</strong> <span th:text="${patient.gender}"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h6 class="mb-0">Test Information</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-2">
+                                <strong>Test Type:</strong> <span th:text="${testResult.testType}"></span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Ordered By:</strong>
+                                <span th:text="${staff.firstName + ' ' + staff.lastName + ' (' + staff.role + ')'}"></span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Date Performed:</strong>
+                                <span th:text="${#temporals.format(testResult.datePerformed, 'EEEE, MMMM d, yyyy')}"></span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Time:</strong>
+                                <span th:text="${#temporals.format(testResult.datePerformed, 'h:mm a')}"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">Test Results</h6>
+                </div>
+                <div class="card-body">
+                    <div th:if="${testResult.results != null && !testResult.results.empty}">
+                        <div class="row g-3">
+                            <div class="col-md-4" th:each="entry : ${testResult.results}" th:if="${!(entry.key == 'additional_markers')}">
+                                <div class="border rounded p-3">
+                                    <h6 th:text="${#strings.capitalize(entry.key.replace('_', ' '))}"></h6>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="fs-4" th:text="${entry.value}"></span>
+                                        <span class="badge bg-secondary">Result</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional markers if they exist -->
+                        <div class="mt-4" th:if="${testResult.results.containsKey('additional_markers')}">
+                            <h6 class="border-bottom pb-2 mb-3">Additional Markers</h6>
+                            <div class="row g-3">
+                                <div class="col-md-4" th:each="marker : ${testResult.results.get('additional_markers')}">
+                                    <div class="border rounded p-3">
+                                        <h6 th:text="${#strings.capitalize(marker.key.replace('_', ' '))}"></h6>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="fs-4" th:text="${marker.value}"></span>
+                                            <span class="badge bg-info">Marker</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-muted" th:if="${testResult.results == null || testResult.results.empty}">
+                        No detailed results available
+                    </p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">Interpretation</h6>
+                        </div>
+                        <div class="card-body">
+                            <p th:text="${testResult.interpretation != null ? testResult.interpretation : 'No interpretation provided'}"
+                               th:class="${testResult.interpretation != null ? '' : 'text-muted'}">
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card" th:classappend="${testResult.abnormalFlags != null && !testResult.abnormalFlags.empty ? 'border-danger' : ''}">
+                        <div class="card-header" th:classappend="${testResult.abnormalFlags != null && !testResult.abnormalFlags.empty ? 'bg-danger text-white' : ''}">
+                            <h6 class="mb-0">
+                                <i class="bi bi-exclamation-triangle" th:if="${testResult.abnormalFlags != null && !testResult.abnormalFlags.empty}"></i>
+                                Abnormal Flags
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <ul th:if="${testResult.abnormalFlags != null && !testResult.abnormalFlags.empty}">
+                                <li th:each="flag : ${testResult.abnormalFlags}" th:text="${flag}"></li>
+                            </ul>
+                            <p class="text-success" th:if="${testResult.abnormalFlags == null || testResult.abnormalFlags.empty}">
+                                <i class="bi bi-check-circle"></i> No abnormal results detected
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer d-flex justify-content-end">
+            <button type="button" class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                <i class="bi bi-trash"></i> Delete Result
+            </button>
+            <a th:href="@{/medical-records/add(patientId=${patient.patientId})}" class="btn btn-primary">
+                <i class="bi bi-file-earmark-plus"></i> Add Follow-up Record
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this test result?</p>
+                <p class="text-danger">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form th:action="@{/medical-records/test-results/{id}/delete(id=${testResult.id})}" method="post">
+                    <button type="submit" class="btn btn-danger">Delete Result</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments/header :: footer"></footer>
+</body>
+</html>

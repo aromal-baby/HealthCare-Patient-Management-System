@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head"></head>
+<body>
+<header th:replace="fragments/header :: header"></header>
+
+<div class="container mt-4">
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-person"></i> Patient Profile</h2>
+        <div>
+            <a th:href="@{/patients}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <!-- Patient Info Card -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-person-vcard"></i>
+                Patient Information
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table table-borderless">
+                        <tbody>
+                        <tr>
+                            <th style="width: 30%">Name:</th>
+                            <td th:text="${patient.firstName + ' ' + patient.lastName}"></td>
+                        </tr>
+                        <tr>
+                            <th>Patient ID:</th>
+                            <td th:text="${patient.patientId}"></td>
+                        </tr>
+                        <tr>
+                            <th>Date of Birth:</th>
+                            <td th:text="${#temporals.format(patient.dateOfBirth, 'MMM dd, yyyy')}"></td>
+                        </tr>
+                        <tr>
+                            <th>Gender:</th>
+                            <td th:text="${patient.gender != null ? patient.gender : 'Not specified'}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <table class="table table-borderless">
+                        <tbody>
+                        <tr>
+                            <th style="width: 30%">Phone:</th>
+                            <td th:text="${patient.phone != null ? patient.phone : 'Not provided'}"></td>
+                        </tr>
+                        <tr>
+                            <th>Email:</th>
+                            <td th:text="${patient.email != null ? patient.email : 'Not provided'}"></td>
+                        </tr>
+                        <tr>
+                            <th>Address:</th>
+                            <td th:text="${patient.address != null ? patient.address : 'Not provided'}"></td>
+                        </tr>
+                        <tr>
+                            <th>Insurance:</th>
+                            <td>
+                                        <span th:if="${patient.insuranceProvider != null}">
+                                            <span th:text="${patient.insuranceProvider}"></span>
+                                            <small class="text-muted" th:if="${patient.insuranceId != null}">
+                                                (ID: <span th:text="${patient.insuranceId}"></span>)
+                                            </small>
+                                        </span>
+                                <span th:if="${patient.insuranceProvider == null}">Not provided</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="d-flex gap-2">
+                <a th:href="@{/appointments/add(patientId=${patient.patientId})}" class="btn btn-success">
+                    <i class="bi bi-calendar-plus"></i> Schedule Appointment
+                </a>
+                <a th:href="@{/medical-records/add(patientId=${patient.patientId})}" class="btn btn-primary">
+                    <i class="bi bi-file-earmark-plus"></i> Add Medical Record
+                </a>
+                <a th:href="@{/medical-records/test-results/add(patientId=${patient.patientId})}" class="btn btn-info">
+                    <i class="bi bi-clipboard2-plus"></i> Add Test Result
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patient Tabs -->
+    <ul class="nav nav-tabs" id="patientTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">
+                <i class="bi bi-clipboard2-heart"></i> Medical History
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="records-tab" data-bs-toggle="tab" data-bs-target="#records" type="button" role="tab">
+                <i class="bi bi-file-medical"></i> Medical Records
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tests-tab" data-bs-toggle="tab" data-bs-target="#tests" type="button" role="tab">
+                <i class="bi bi-clipboard2-pulse"></i> Test Results
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="appointments-tab" data-bs-toggle="tab" data-bs-target="#appointments" type="button" role="tab">
+                <i class="bi bi-calendar-check"></i> Appointments
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="patientTabsContent">
+        <!-- Medical History Tab -->
+        <div class="tab-pane fade show active" id="history" role="tabpanel">
+            <div th:if="${history != null}" class="mt-3">
+                <div class="row mb-4">
+                    <!-- Allergies -->
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Allergies</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush" th:if="${!history.allergies.empty}">
+                                    <li class="list-group-item" th:each="allergy : ${history.allergies}">
+                                        <strong th:text="${allergy.allergen}"></strong>
+                                        <span class="badge" th:classappend="${allergy.severity == 'Severe' ? 'bg-danger' : (allergy.severity == 'Moderate' ? 'bg-warning' : 'bg-info')}"
+                                              th:text="${allergy.severity}"></span>
+                                        <div class="text-muted small" th:if="${allergy.reaction != null}">
+                                            Reaction: <span th:text="${allergy.reaction}"></span>
+                                        </div>
+                                    </li>
+                                </ul>
+                                <p class="text-muted" th:if="${history.allergies.empty}">No known allergies</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chronic Conditions -->
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="bi bi-heart-pulse"></i> Chronic Conditions</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush" th:if="${!history.chronicConditions.empty}">
+                                    <li class="list-group-item" th:each="condition : ${history.chronicConditions}">
+                                        <span th:text="${condition}"></span>
+                                    </li>
+                                </ul>
+                                <p class="text-muted" th:if="${history.chronicConditions.empty}">No chronic conditions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Family History -->
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="bi bi-people"></i> Family History</h5>
+                            </div>
+                            <div class="card-body">
+                                <div th:if="${!history.familyHistory.empty}">
+                                    <div th:each="entry : ${history.familyHistory}" class="mb-2">
+                                        <strong th:text="${#strings.capitalize(entry.key)}"></strong>:
+                                        <span th:text="${#strings.listJoin(entry.value, ', ')}"></span>
+                                    </div>
+                                </div>
+                                <p class="text-muted" th:if="${history.familyHistory.empty}">No family history recorded</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Social History -->
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="bi bi-person-lines-fill"></i> Social History</h5>
+                            </div>
+                            <div class="card-body">
+                                <div th:if="${!history.socialHistory.empty}">
+                                    <div th:each="entry : ${history.socialHistory}" class="mb-2">
+                                        <strong th:text="${#strings.capitalize(entry.key.replace('_', ' '))}"></strong>:
+                                        <span th:text="${entry.value}"></span>
+                                    </div>
+                                </div>
+                                <p class="text-muted" th:if="${history.socialHistory.empty}">No social history recorded</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${history == null}" class="text-center mt-4">
+                <p class="text-muted">No medical history available</p>
+            </div>
+        </div>
+
+        <!-- Medical Records Tab -->
+        <div class="tab-pane fade" id="records" role="tabpanel">
+            <div class="d-flex justify-content-end mt-3 mb-3">
+                <a th:href="@{/medical-records/add(patientId=${patient.patientId})}" class="btn btn-primary btn-sm">
+                    <i class="bi bi-plus-circle"></i> Add Record
+                </a>
+            </div>
+
+            <div th:if="${!medicalRecords.empty}">
+                <div class="card mb-3 medical-record-card" th:each="record : ${medicalRecords}">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0" th:text="${record.recordType}"></h5>
+                        <span class="badge bg-primary" th:text="${#temporals.format(record.dateCreated, 'MMM dd, yyyy')}"></span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="vital-signs p-2">
+                                    <h6 class="border-bottom pb-2 mb-2">Vital Signs</h6>
+                                    <div th:if="${record.vitalSigns != null && !record.vitalSigns.empty}">
+                                        <div th:each="entry : ${record.vitalSigns}" class="mb-1 small">
+                                            <strong th:text="${#strings.capitalize(entry.key.replace('_', ' '))}"></strong>:
+                                            <span th:text="${entry.value}"></span>
+                                        </div>
+                                    </div>
+                                    <p class="text-muted small" th:if="${record.vitalSigns == null || record.vitalSigns.empty}">
+                                        No vital signs recorded
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <h6>Symptoms</h6>
+                                <p th:if="${record.symptoms != null && !record.symptoms.empty}">
+                                        <span th:each="symptom, iterStat : ${record.symptoms}">
+                                            <span class="badge bg-secondary" th:text="${symptom}"></span>
+                                        </span>
+                                </p>
+                                <p class="text-muted" th:if="${record.symptoms == null || record.symptoms.empty}">
+                                    No symptoms recorded
+                                </p>
+
+                                <h6>Diagnosis</h6>
+                                <p th:text="${record.diagnosis != null ? record.diagnosis : 'No diagnosis recorded'}"></p>
+
+                                <h6>Notes</h6>
+                                <p th:text="${record.notes != null ? record.notes : 'No additional notes'}"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between align-items-center">
+                            <span th:if="${record.followUpRequired}" class="text-danger">
+                                <i class="bi bi-exclamation-circle"></i> Follow-up required
+                            </span>
+                        <span th:if="${!record.followUpRequired}" class="text-success">
+                                <i class="bi bi-check-circle"></i> No follow-up needed
+                            </span>
+
+                        <div>
+                            <a th:href="@{/medical-records/{id}(id=${record.id})}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${medicalRecords.empty}" class="text-center mt-4">
+                <p class="text-muted">No medical records available</p>
+            </div>
+        </div>
+
+        <!-- Test Results Tab -->
+        <div class="tab-pane fade" id="tests" role="tabpanel">
+            <div class="d-flex justify-content-end mt-3 mb-3">
+                <a th:href="@{/medical-records/test-results/add(patientId=${patient.patientId})}" class="btn btn-primary btn-sm">
+                    <i class="bi bi-plus-circle"></i> Add Test Result
+                </a>
+            </div>
+
+            <div th:if="${!testResults.empty}">
+                <div class="card mb-3 test-result-card" th:each="test : ${testResults}">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0" th:text="${test.testType}"></h5>
+                        <span class="badge bg-success" th:text="${#temporals.format(test.datePerformed, 'MMM dd, yyyy')}"></span>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h6>Results Summary</h6>
+                            <div th:if="${test.results != null && !test.results.empty}">
+                                <div class="row g-3">
+                                    <div class="col-md-4" th:each="entry : ${test.results}" th:if="${!(entry.key == 'additional_markers')}">
+                                        <div class="border rounded p-2">
+                                            <strong th:text="${#strings.capitalize(entry.key.replace('_', ' '))}"></strong>:
+                                            <span th:text="${entry.value}"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Additional markers if they exist -->
+                                <div class="mt-3" th:if="${test.results.containsKey('additional_markers')}">
+                                    <h6>Additional Markers</h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-4" th:each="marker : ${test.results.get('additional_markers')}">
+                                            <div class="border rounded p-2">
+                                                <strong th:text="${#strings.capitalize(marker.key.replace('_', ' '))}"></strong>:
+                                                <span th:text="${marker.value}"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-muted" th:if="${test.results == null || test.results.empty}">
+                                No detailed results available
+                            </p>
+                        </div>
+
+                        <div class="mb-3">
+                            <h6>Interpretation</h6>
+                            <p th:text="${test.interpretation != null ? test.interpretation : 'No interpretation provided'}"></p>
+                        </div>
+
+                        <div th:if="${test.abnormalFlags != null && !test.abnormalFlags.empty}">
+                            <h6 class="text-danger">Abnormal Flags</h6>
+                            <ul>
+                                <li th:each="flag : ${test.abnormalFlags}" th:text="${flag}"></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-end">
+                        <a th:href="@{/medical-records/test-results/{id}(id=${test.id})}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye"></i> View Full Results
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${testResults.empty}" class="text-center mt-4">
+                <p class="text-muted">No test results available</p>
+            </div>
+        </div>
+
+        <!-- Appointments Tab -->
+        <div class="tab-pane fade" id="appointments" role="tabpanel">
+            <div class="d-flex justify-content-end mt-3 mb-3">
+                <a th:href="@{/appointments/add(patientId=${patient.patientId})}" class="btn btn-primary btn-sm">
+                    <i class="bi bi-plus-circle"></i> Schedule Appointment
+                </a>
+            </div>
+
+            <div th:if="${!appointments.empty}">
+                <div class="card mb-3 appointment-card" th:each="appointment : ${appointments}">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <span th:text="${#temporals.format(appointment.appointmentDate, 'MMM dd, yyyy')}"></span> -
+                            <span th:text="${#temporals.format(appointment.appointmentTime, 'hh:mm a')}"></span>
+                        </h5>
+                        <span class="badge"
+                              th:classappend="${appointment.status == 'scheduled' ? 'bg-primary' : (appointment.status == 'completed' ? 'bg-success' : 'bg-danger')}"
+                              th:text="${#strings.capitalize(appointment.status)}">
+                            </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p>
+                                    <strong>Doctor:</strong>
+                                    <span th:text="${appointment.staff.firstName + ' ' + appointment.staff.lastName}"></span>
+                                    <span class="text-muted" th:if="${appointment.staff.specialty != null}">
+                                            (<span th:text="${appointment.staff.specialty}"></span>)
+                                        </span>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p th:if="${appointment.roomNumber != null}">
+                                    <strong>Room:</strong> <span th:text="${appointment.roomNumber}"></span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-end">
+                        <a th:href="@{/appointments/{id}(id=${appointment.appointmentId})}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye"></i> View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${appointments.empty}" class="text-center mt-4">
+                <p class="text-muted">No appointments scheduled</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments/header :: footer"></footer>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head"></head>
+<body>
+<header th:replace="fragments/header :: header"></header>
+
+<div class="container mt-4">
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-calendar-event"></i> Appointment Details</h2>
+        <a th:href="@{/appointments}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    Appointment #<span th:text="${appointment.appointmentId}"></span>
+                </h5>
+                <span class="badge"
+                      th:classappend="${appointment.status == 'scheduled' ? 'bg-primary' : (appointment.status == 'completed' ? 'bg-success' : 'bg-danger')}"
+                      th:text="${#strings.capitalize(appointment.status)}">
+                    </span>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Patient Information</h6>
+                    <div class="mb-3 p-3 bg-light rounded">
+                        <div>
+                            <strong>Name:</strong>
+                            <a th:href="@{/patients/{id}(id=${appointment.patient.patientId})}"
+                               th:text="${appointment.patient.firstName + ' ' + appointment.patient.lastName}">
+                            </a>
+                        </div>
+                        <div>
+                            <strong>ID:</strong> <span th:text="${appointment.patient.patientId}"></span>
+                        </div>
+                        <div th:if="${appointment.patient.phone != null}">
+                            <strong>Phone:</strong> <span th:text="${appointment.patient.phone}"></span>
+                        </div>
+                    </div>
+
+                    <h6>Doctor Information</h6>
+                    <div class="mb-3 p-3 bg-light rounded">
+                        <div>
+                            <strong>Name:</strong>
+                            <span th:text="${appointment.staff.firstName + ' ' + appointment.staff.lastName}"></span>
+                        </div>
+                        <div th:if="${appointment.staff.specialty != null}">
+                            <strong>Specialty:</strong> <span th:text="${appointment.staff.specialty}"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <h6>Appointment Details</h6>
+                    <div class="mb-3 p-3 bg-light rounded">
+                        <div>
+                            <strong>Date:</strong>
+                            <span th:text="${#temporals.format(appointment.appointmentDate, 'EEEE, MMMM d, yyyy')}"></span>
+                        </div>
+                        <div>
+                            <strong>Time:</strong>
+                            <span th:text="${#temporals.format(appointment.appointmentTime, 'h:mm a')}"></span>
+                        </div>
+                        <div>
+                            <strong>Room:</strong>
+                            <span th:text="${appointment.roomNumber != null ? appointment.roomNumber : 'Not assigned'}"></span>
+                        </div>
+                        <div>
+                            <strong>Created:</strong>
+                            <span th:text="${#temporals.format(appointment.createdAt, 'MMM d, yyyy h:mm a')}"></span>
+                        </div>
+                    </div>
+
+                    <h6>Status Management</h6>
+                    <div class="p-3 bg-light rounded">
+                        <form th:action="@{/appointments/{id}/update-status(id=${appointment.appointmentId})}" method="post">
+                            <div class="mb-3">
+                                <label for="status" class="form-label">Update Status</label>
+                                <select class="form-select" id="status" name="status">
+                                    <option value="scheduled" th:selected="${appointment.status == 'scheduled'}">Scheduled</option>
+                                    <option value="completed" th:selected="${appointment.status == 'completed'}">Completed</option>
+                                    <option value="canceled" th:selected="${appointment.status == 'canceled'}">Canceled</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Update Status
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="d-flex justify-content-between">
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                    <i class="bi bi-trash"></i> Cancel Appointment
+                </button>
+
+                <div>
+                    <a th:href="@{/medical-records/add(patientId=${appointment.patient.patientId})}" class="btn btn-success">
+                        <i class="bi bi-file-earmark-plus"></i> Add Medical Record
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Cancellation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to cancel this appointment?</p>
+                <p class="text-danger">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <form th:action="@{/appointments/{id}/delete(id=${appointment.appointmentId})}" method="post">
+                    <button type="submit" class="btn btn-danger">Confirm Cancellation</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments/header :: footer"></footer>
+</body>
+</html>

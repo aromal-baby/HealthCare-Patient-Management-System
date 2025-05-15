@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head"></head>
+<body>
+<header th:replace="fragments/header :: header"></header>
+
+<div class="container mt-4">
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-file-medical"></i> Medical Records</h2>
+        <a th:href="@{/medical-records/add}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> New Record
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Record ID</th>
+                        <th>Patient</th>
+                        <th>Record Type</th>
+                        <th>Date Created</th>
+                        <th>Diagnosis</th>
+                        <th>Follow-up</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="record : ${records}">
+                        <td th:text="${record.recordId}"></td>
+                        <td>
+                            <a th:if="${patientNames.containsKey(record.patientId)}"
+                               th:href="@{/patients/{id}(id=${record.patientId})}"
+                               th:text="${patientNames.get(record.patientId)}">
+                            </a>
+                            <span th:unless="${patientNames.containsKey(record.patientId)}"
+                                  th:text="${'Patient #' + record.patientId}">
+                                    </span>
+                        </td>
+                        <td th:text="${record.recordType}"></td>
+                        <td th:text="${#temporals.format(record.dateCreated, 'MMM dd, yyyy')}"></td>
+                        <td th:text="${record.diagnosis != null ? record.diagnosis : 'N/A'}"></td>
+                        <td>
+                            <span th:if="${record.followUpRequired}" class="badge bg-danger">Required</span>
+                            <span th:unless="${record.followUpRequired}" class="badge bg-success">Not Required</span>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a th:href="@{/medical-records/{id}(id=${record.id})}" class="btn btn-info">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                                <a th:href="@{/medical-records/{id}/edit(id=${record.id})}" class="btn btn-primary">
+                                    <i class="bi bi-pencil"></i> Edit
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${records.empty}">
+                        <td colspan="7" class="text-center">No medical records found</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments/header :: footer"></footer>
+</body>
+</html>

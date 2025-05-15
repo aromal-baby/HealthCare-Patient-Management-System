@@ -3,7 +3,6 @@ package com.healthcarepatientmanagement.model.sql;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import javax.persistence.*;
 
 import java.time.LocalTime;
 import java.time.LocalDateTime;

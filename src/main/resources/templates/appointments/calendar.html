@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head"></head>
+<body>
+<header th:replace="fragments/header :: header"></header>
+
+<div class="container mt-4">
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-calendar-week"></i> Appointment Calendar</h2>
+        <div class="d-flex gap-2">
+            <a th:href="@{/appointments}" class="btn btn-outline-secondary">
+                <i class="bi bi-list"></i> List View
+            </a>
+            <a th:href="@{/appointments/add}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> New Appointment
+            </a>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Select Date and Provider</h5>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/appointments/calendar}" method="get" class="row g-3">
+                <div class="col-md-5">
+                    <label for="date" class="form-label">Date</label>
+                    <input type="date" class="form-control" id="date" name="date" th:value="${date}">
+                </div>
+                <div class="col-md-5">
+                    <label for="staffId" class="form-label">Healthcare Provider</label>
+                    <select class="form-select" id="staffId" name="staffId">
+                        <option value="">All Providers</option>
+                        <option th:each="provider : ${staff}"
+                                th:value="${provider.staffId}"
+                                th:text="${provider.firstName + ' ' + provider.lastName + ' (' + provider.role + ')'}"
+                                th:selected="${provider.staffId == selectedStaffId}">
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> View
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0" th:text="${#temporals.format(date, 'EEEE, MMMM d, yyyy')}"></h5>
+        </div>
+        <div class="card-body">
+            <!-- Calendar view will go here - this would typically be implemented with a JavaScript calendar library -->
+            <div class="alert alert-info" th:if="${selectedStaffId == null}">
+                <i class="bi bi-info-circle"></i> Please select a healthcare provider to view their schedule.
+            </div>
+
+            <div th:if="${selectedStaffId != null}">
+                <div class="row">
+                    <div class="col-md-3 text-center fw-bold border-bottom pb-2">Time</div>
+                    <div class="col-md-3 text-center fw-bold border-bottom pb-2">Patient</div>
+                    <div class="col-md-3 text-center fw-bold border-bottom pb-2">Type</div>
+                    <div class="col-md-3 text-center fw-bold border-bottom pb-2">Status</div>
+                </div>
+
+                <div th:if="${availableSlots != null && !availableSlots.empty}">
+                    <div class="row py-2 border-bottom" th:each="slot : ${availableSlots}">
+                        <div class="col-md-3 text-center" th:text="${#temporals.format(slot.appointmentTime, 'h:mm a')}"></div>
+                        <div class="col-md-3 text-center">
+                            <a th:href="@{/patients/{id}(id=${slot.patient.patientId})}"
+                               th:text="${slot.patient.firstName + ' ' + slot.patient.lastName}">
+                            </a>
+                        </div>
+                        <div class="col-md-3 text-center" th:text="${slot.appointmentType != null ? slot.appointmentType : 'General'}"></div>
+                        <div class="col-md-3 text-center">
+                                <span class="badge"
+                                      th:classappend="${slot.status == 'scheduled' ? 'bg-primary' : (slot.status == 'completed' ? 'bg-success' : 'bg-danger')}"
+                                      th:text="${#strings.capitalize(slot.status)}">
+                                </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center py-4" th:if="${availableSlots == null || availableSlots.empty}">
+                    <p>No appointments scheduled for this date.</p>
+                    <a th:href="@{/appointments/add(staffId=${selectedStaffId})}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Schedule New Appointment
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments/header :: footer"></footer>
+</body>
+</html>

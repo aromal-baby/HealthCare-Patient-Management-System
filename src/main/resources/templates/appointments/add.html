@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head"></head>
+<body>
+<header th:replace="fragments/header :: header"></header>
+
+<div class="container mt-4">
+    <div class="page-header mb-4">
+        <h2><i class="bi bi-calendar-plus"></i> Schedule Appointment</h2>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form th:action="@{/appointments/add}" th:object="${appointment}" method="post" class="needs-validation" novalidate>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="patientId" class="form-label">Patient *</label>
+                        <select class="form-select" id="patientId" name="patientId" required>
+                            <option value="">Select Patient</option>
+                            <option th:each="patient : ${patients}"
+                                    th:value="${patient.patientId}"
+                                    th:text="${patient.firstName + ' ' + patient.lastName}"
+                                    th:selected="${patient.patientId == selectedPatientId}">
+                            </option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Please select a patient
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="staffId" class="form-label">Doctor *</label>
+                        <select class="form-select" id="staffId" name="staffId" required>
+                            <option value="">Select Doctor</option>
+                            <option th:each="doctor : ${staff}"
+                                    th:if="${doctor.role == 'Doctor'}"
+                                    th:value="${doctor.staffId}"
+                                    th:text="${doctor.firstName + ' ' + doctor.lastName + (doctor.specialty != null ? ' (' + doctor.specialty + ')' : '')}">
+                            </option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Please select a doctor
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="appointmentDate" class="form-label">Date *</label>
+                        <input type="date" class="form-control" id="appointmentDate" th:field="*{appointmentDate}" required>
+                        <div class="invalid-feedback">
+                            Please select a date
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="appointmentTime" class="form-label">Time *</label>
+                        <input type="time" class="form-control" id="appointmentTime" th:field="*{appointmentTime}" required>
+                        <div class="invalid-feedback">
+                            Please select a time
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="roomNumber" class="form-label">Room Number</label>
+                    <input type="text" class="form-control" id="roomNumber" th:field="*{roomNumber}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" th:field="*{status}">
+                        <option value="scheduled">Scheduled</option>
+                        <option value="completed">Completed</option>
+                        <option value="canceled">Canceled</option>
+                    </select>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a th:href="@{/appointments}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-calendar-check"></i> Schedule Appointment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments/header :: footer"></footer>
+
+<script>
+    // Form validation script
+    (function () {
+        'use strict'
+
+        // Fetch all forms we want to apply validation to
+        var forms = document.querySelectorAll('.needs-validation')
+
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
+</body>
+</html>
