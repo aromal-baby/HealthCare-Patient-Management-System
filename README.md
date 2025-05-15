@@ -49,3 +49,50 @@ Installation and Setup
 Detailed instructions for setting up both database systems and running the application can be found in the Installation Guide.
 License
 This project is intended for academic purposes only. All rights reserved.
+
+
+
+## Technologies Used
+
+- Java 11
+- Spring Boot 2.7.x
+- MySQL 8.0
+- MongoDB 5.0
+- Thymeleaf
+- Bootstrap 5
+
+## Features
+
+- Patient registration and management
+- Medical staff management
+- Appointment scheduling
+- Medical records storage and retrieval
+- Test results tracking
+- Patient history with allergies and chronic conditions
+
+## Database Design
+
+### MySQL Database Schema
+- Patients (structured demographic data)
+- Medical Staff (healthcare provider information)
+- Appointments (scheduled visits)
+
+### MongoDB Collections
+- Medical Records (flexible medical notes)
+- Test Results (variable lab results)
+- Patient History (medical history with varying structure)
+
+## Setup Instructions
+
+1. Clone the repository
+2. Configure MySQL and MongoDB connections in application.properties
+3. Run the application using Maven: `mvn spring-boot:run`
+4. Access the application at http://localhost:8080
+
+## Development Process
+
+This project demonstrates the integration of SQL and NoSQL databases in a healthcare context, showing how structured and unstructured data can be effectively managed in a single application.
+
+## Video Demonstration
+
+[Link to video demonstration]
